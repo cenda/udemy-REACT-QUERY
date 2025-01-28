@@ -3,10 +3,12 @@ import { useState } from "react";
 import { fetchPosts, deletePost, updatePost } from "./api";
 import { PostDetail } from "./PostDetail";
 import { useQuery } from "@tanstack/react-query";
-const maxPostPage = 10;
+
+// use this as the limiter of maximum data to be fetched
+const maxPostPage = 3;
 
 export function Posts() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState(null);
 
   // replace with useQuery
@@ -45,21 +47,23 @@ export function Posts() {
       </ul>
       <div className="pages flex justify-between">
         <button
-          disabled={isLoading || currentPage < 1}
+          disabled={isLoading || currentPage <= 1}
           onClick={() => {
-            setCurrentPage(Math.min(1, currentPage - 1));
+            setCurrentPage((prevValue) => Math.max(1, prevValue - 1));
           }}
+          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           Previous page
         </button>
 
-        <span>Page {currentPage + 1}</span>
+        <span>Page {currentPage}</span>
 
         <button
-          disabled={isLoading /*|| !data?.hasMore*/}
+          disabled={isLoading || currentPage >= maxPostPage}
           onClick={() => {
-            setCurrentPage(currentPage + 1);
+            setCurrentPage((prevValue) => Math.min(maxPostPage, prevValue + 1));
           }}
+          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next page
         </button>

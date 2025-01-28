@@ -9,7 +9,11 @@ function App() {
     // provide React Query client to App
     <QueryClientProvider client={queryClient}>
       <div className="App space-y-6">
-        <h1 className="underline text-3xl font-bold">Blog &apos;em Ipsum</h1>
+        <h1 className="text-3xl font-bold">
+          <a href="/" className="underline hover:no-underline">
+            Blog &apos;em Ipsum
+          </a>
+        </h1>
         <Posts />
       </div>
       <ReactQueryDevtools />
