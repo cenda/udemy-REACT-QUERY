@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { fetchPosts, deletePost, updatePost } from "./api";
 import { PostDetail } from "./PostDetail";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 // use this as the limiter of maximum data to be fetched
 const maxPostPage = 3;
@@ -10,6 +10,27 @@ const maxPostPage = 3;
 export function Posts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState(null);
+
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (postId) => deletePost(postId),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (postId) => updatePost(postId),
+  });
+
+  useEffect(() => {
+    if (currentPage < maxPostPage) {
+      const nextPage = currentPage + 1; //Math.min(maxPostPage, currentPage + 1);
+
+      queryClient.prefetchQuery({
+        queryKey: ["posts", nextPage],
+        queryFn: () => fetchPosts(nextPage),
+      });
+    }
+  }, [currentPage, queryClient]);
 
   // replace with useQuery
   const { data, isLoading, isError, error } = useQuery({
@@ -39,7 +60,11 @@ export function Posts() {
           <li
             key={post.id}
             className="post-title mt-2 cursor-pointer hover:opacity-60"
-            onClick={() => setSelectedPost(post)}
+            onClick={() => {
+              deleteMutation.reset();
+              updateMutation.reset();
+              setSelectedPost(post);
+            }}
           >
             {post.title}
           </li>
@@ -51,7 +76,7 @@ export function Posts() {
           onClick={() => {
             setCurrentPage((prevValue) => Math.max(1, prevValue - 1));
           }}
-          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          className="button"
         >
           Previous page
         </button>
@@ -63,13 +88,19 @@ export function Posts() {
           onClick={() => {
             setCurrentPage((prevValue) => Math.min(maxPostPage, prevValue + 1));
           }}
-          className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          className="button"
         >
           Next page
         </button>
       </div>
       <hr />
-      {selectedPost && <PostDetail post={selectedPost} />}
+      {selectedPost && (
+        <PostDetail
+          post={selectedPost}
+          deleteMutation={deleteMutation}
+          updateMutation={updateMutation}
+        />
+      )}
     </>
   );
 }
