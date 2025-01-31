@@ -14,11 +14,13 @@ export function Posts() {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: (postId) => deletePost(postId),
+    // mutationFn: (postId) => deletePost(postId),
+    mutationFn: deletePost,
   });
 
   const updateMutation = useMutation({
-    mutationFn: (postId) => updatePost(postId),
+    // mutationFn: (postId) => updatePost(postId),
+    mutationFn: updatePost,
   });
 
   useEffect(() => {
