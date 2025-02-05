@@ -6,19 +6,28 @@ import { filterByTreatment } from "../utils";
 
 import { axiosInstance } from "@/axiosInstance";
 import { queryKeys } from "@/react-query/constants";
+import { useQuery } from "@tanstack/react-query";
 
 // query function for useQuery
-// async function getStaff(): Promise<Staff[]> {
-//   const { data } = await axiosInstance.get('/staff');
-//   return data;
-// }
+async function getStaff(): Promise<Staff[]> {
+  const { data } = await axiosInstance.get("/staff");
+  return data;
+}
 
 export function useStaff() {
+  const defaultFilterValue = "all";
   // for filtering staff by treatment
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(defaultFilterValue);
 
   // TODO: get data from server via useQuery
-  const staff: Staff[] = [];
+  const fallback: Staff[] = [];
+  const { data = fallback } = useQuery({
+    queryKey: [queryKeys.staff],
+    queryFn: getStaff,
+  });
+
+  const staff: Staff[] =
+    filter !== defaultFilterValue ? filterByTreatment(data, filter) : data;
 
   return { staff, filter, setFilter };
 }
