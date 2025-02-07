@@ -7,6 +7,7 @@ import { useReserveAppointment } from "./hooks/useReserveAppointment";
 import { appointmentInPast, getAppointmentColor } from "./utils";
 
 import { useLoginData } from "@/auth/AuthContext";
+import { useUser } from "../user/hooks/useUser";
 
 // determine whether this appointment can be reserved / un-reserved by logged-in user
 function isClickable(
@@ -34,6 +35,8 @@ export function Appointment({ appointmentData }: AppointmentProps) {
   let onAppointmentClick: undefined | (() => void);
   let hoverCss = {};
 
+  const {user} = useUser()
+
   // turn the lozenge into a button if it's clickable
   if (clickable) {
     onAppointmentClick = userId
@@ -56,6 +59,7 @@ export function Appointment({ appointmentData }: AppointmentProps) {
       as={clickable ? "button" : "div"}
       onClick={onAppointmentClick}
       _hover={hoverCss}
+      title={user?.name ?? appointmentData?.userId?.toString()}
     >
       <HStack justify="space-between">
         <Text as="span" fontSize="xs">
