@@ -20,6 +20,12 @@ export async function getAppointments(
   return data;
 }
 
+// overrides for appointments useQuery and prefetchQuery calls
+const commonQueryOptions = {
+  staleTime: 0, // we want most recent data as soon as possible
+  gcTime: 300_000, // 5 minutes
+};
+
 // The purpose of this hook:
 //   1. track the current month/year (aka monthYear) selected by the user
 //     1a. provide a way to update state
@@ -79,6 +85,7 @@ export function useAppointments() {
         nextMonthYear.month,
       ],
       queryFn: () => getAppointments(nextMonthYear.year, nextMonthYear.month),
+      ...commonQueryOptions,
     });
   }, [monthYear, queryClient]);
 
@@ -91,6 +98,12 @@ export function useAppointments() {
   const fallback: AppointmentDateMap = {};
 
   const { data: appointments = fallback } = useQuery({
+    // // extract these overrides due to usage in prefetch too
+    // staleTime: 0, // we want most recent data as soon as possible
+    // gcTime: 300_000, // 5 minutes
+    ...commonQueryOptions,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60_000, // every single minute we'll receive fresh data
     queryKey: [queryKeys.appointments, monthYear.year, monthYear.month],
     queryFn: () => getAppointments(monthYear.year, monthYear.month),
     select: (data) => selectFn(data, showAll),
