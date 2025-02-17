@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { Appointment as AppointmentType } from "@shared/types";
 
 import { useReserveAppointment } from "./hooks/useReserveAppointment";
-import { appointmentInPast, getAppointmentColor } from "./utils";
+import { appointmentInPast, getAppointmentStyle, getAppointmentTitle } from "./utils";
 
 import { useLoginData } from "@/auth/AuthContext";
 import { useUser } from "../user/hooks/useUser";
@@ -29,7 +29,7 @@ export function Appointment({ appointmentData }: AppointmentProps) {
   const { userId } = useLoginData();
 
   const reserveAppointment = useReserveAppointment();
-  const [textColor, bgColor] = getAppointmentColor(appointmentData, userId);
+  const [textColor, bgColor, opacity, textDecoration] = getAppointmentStyle(appointmentData, userId);
 
   const clickable = isClickable(userId, appointmentData);
   let onAppointmentClick: undefined | (() => void);
@@ -50,16 +50,21 @@ export function Appointment({ appointmentData }: AppointmentProps) {
   }
 
   const appointmentHour = dayjs(appointmentData.dateTime).format("h a");
+
+  const title = getAppointmentTitle(appointmentData, user)
+
   return (
     <Box
       borderRadius="lg"
       px={2}
       bgColor={bgColor}
       color={textColor}
+      opacity={opacity}
+      textDecoration={textDecoration}
       as={clickable ? "button" : "div"}
       onClick={onAppointmentClick}
       _hover={hoverCss}
-      title={user?.name ?? appointmentData?.userId?.toString()}
+      title={title}
     >
       <HStack justify="space-between">
         <Text as="span" fontSize="xs">

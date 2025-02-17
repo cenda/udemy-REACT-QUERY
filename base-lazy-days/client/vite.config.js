@@ -14,8 +14,8 @@ export default defineConfig({
   },
   server: {
     // to match server expectation
-    port: 3000,
-    // exit if port 3000 is in use (to avoid CORS errors)
+    port: 3003,
+    // exit if port 3003 is in use (to avoid CORS errors)
     strict: true,
   },
   resolve: {

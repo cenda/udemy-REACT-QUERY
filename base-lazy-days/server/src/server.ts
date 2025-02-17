@@ -30,10 +30,10 @@ declare global {
 
 const app = express();
 
-// CORS for react app, assuming port 3000
+// CORS for react app, assuming port 3003
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:3003',
     credentials: true,
   }),
 );
