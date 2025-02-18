@@ -4,7 +4,9 @@ export const generateUserKey = (
   userId: number,
   userToken: string
 ): (string | number)[] => {
-  return [queryKeys.user, userId, userToken];
+  // deliberately exclude userToken from dependency array to keep key consistent regardless of token changes
+  // return [queryKeys.user, userId, userToken];
+  return [queryKeys.user, userId];
 };
 
 export const generateUserAppointmentsKey = (
