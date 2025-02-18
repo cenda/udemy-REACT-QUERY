@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jsonpatch from "fast-json-patch";
 
 import type { User } from "@shared/types";
@@ -7,6 +7,9 @@ import { axiosInstance, getJWTHeader } from "../../../axiosInstance";
 import { useUser } from "./useUser";
 
 import { toast } from "@/components/app/toast";
+import { queryKeys } from "@/react-query/constants";
+
+export const MUTATION_KEY = "patch-user";
 
 // for when we need a server function
 async function patchUserOnServer(
@@ -31,11 +34,25 @@ async function patchUserOnServer(
 export function usePatchUser() {
   const { user, updateUser } = useUser();
 
+  const queryClient = useQueryClient();
+
   const { mutate: patchUser } = useMutation({
+    mutationKey: [MUTATION_KEY],
     mutationFn: (newData: User) => patchUserOnServer(newData, user),
-    onSuccess: (userData: User | null) => {
-      toast({ title: "You've updated user data" });
-      updateUser(userData);
+    onSuccess: () => {
+      toast({ title: "You've updated user data", status: "success" });
+      // updateUser(userData);
+    },
+    onError: () => {
+      toast({
+        title: "Oops, something's gone terribly wrong",
+        status: "error",
+      });
+    },
+    onSettled: () => {
+      // this will be called in case of success even in case of error
+      // return promise to maintain 'inProgress' status until query invalidation is complete
+      return queryClient.invalidateQueries({ queryKey: [queryKeys.user] });
     },
   });
 
